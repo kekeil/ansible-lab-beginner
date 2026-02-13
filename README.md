@@ -321,16 +321,20 @@ Structure recommandee:
 ansible-lab-beginner/
   README.md
   ansible.cfg
+  requirements.yml
   inventory/
     hosts.ini
-  group_vars/
-    all.yml
+    group_vars/
+      all.yml
   playbooks/
     ping.yml
     deploy-hello.yml
+    deploy-docker.yml
     verify.yml
+    verify-docker.yml
   templates/
     hello.sh.j2
+    docker-compose-lab.yml.j2
 ```
 
 Dans ce repo actuel, un exemple pret a l'emploi est deja fourni ici:
@@ -350,12 +354,16 @@ git clone <URL_GITHUB_DU_REPO> .
 Depuis le bastion:
 
 ```bash
-cd /opt/ansible-lab/ansible/labs/gcp-beginner
+cd /opt/ansible-lab/ansible-lab-beginner
+# ou cd /opt/ansible-lab si tu as clone avec "git clone URL ."
 ```
 
 ### 9.1 Remplir l'inventaire
 
-Edite `inventory/hosts.ini` et remplace les IP d'exemple par tes IP internes GCP.
+Edite `inventory/hosts.ini` et adapte :
+
+1. **Les IP** : remplace les IP d'exemple par tes NETWORK_IP (section 4.5).
+2. **ansible_user** : remplace `ubuntu` par ton nom d'utilisateur sur les noeuds (celui avec lequel tu te connectes en SSH). Sur le bastion, verifie avec `whoami`. Si tu es `simporesalathia`, mets `ansible_user=simporesalathia`. Sinon Ansible echouera avec "Permission denied (publickey)".
 
 ### 9.2 Verifier la connectivite Ansible
 
@@ -408,18 +416,42 @@ Tu dois observer:
   - verifier cle privee sur bastion
   - tester `ssh user@node-ip "hostname"`
 - `Permission denied (publickey)`:
-  - recopie la cle avec `ssh-copy-id`
+  - verifie `ansible_user` dans `inventory/hosts.ini` : doit etre ton user SSH sur les noeuds (`whoami` sur le bastion)
+  - recopie la cle avec la methode section 6.2 (gcloud depuis Cloud Shell)
   - verifie `chmod 700 ~/.ssh` et `chmod 600 ~/.ssh/authorized_keys`
 - Python manquant sur cible:
   - `sudo apt install -y python3` sur le noeud
 
-## 13) Prochaine etape apres ce lab
+## 13) Niveau 2 - Deploiement Docker
 
-- Passer au deploiement Docker avec Ansible (niveau 2)
+Installer Docker et lancer nginx + redis sur les noeuds.
+
+### Prerequis
+
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
+
+### Deploiement
+
+```bash
+ansible-playbook -i inventory/hosts.ini playbooks/deploy-docker.yml
+```
+
+### Verification
+
+```bash
+ansible-playbook -i inventory/hosts.ini playbooks/verify-docker.yml
+```
+
+Nginx sera accessible sur chaque noeud au port 8080 (variable `docker_nginx_port` dans `inventory/group_vars/all.yml`).
+
+## 14) Prochaine etape apres ce lab
+
 - Structurer en roles (`roles/common`, `roles/app`)
 - Ajouter CI lint Ansible dans GitHub Actions
 
-## 14) Nettoyage - Supprimer les VM
+## 15) Nettoyage - Supprimer les VM
 
 **Important** : Les VM consomment des ressources et peuvent generer des couts. Pense a les supprimer quand tu as termine le lab.
 

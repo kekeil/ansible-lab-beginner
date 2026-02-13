@@ -1,0 +1,12 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: lab-nginx-{{ inventory_hostname }}
+    ports:
+      - "{{ docker_nginx_port }}:80"
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: lab-redis-{{ inventory_hostname }}
+    restart: unless-stopped

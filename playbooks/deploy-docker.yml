@@ -1,0 +1,78 @@
+---
+- name: Deployer Docker sur les noeuds (niveau 2)
+  hosts: nodes
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Installer les prerequis Docker
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: true
+
+    - name: Ajouter la cle GPG Docker
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Ajouter le depot Docker
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+
+    - name: Installer Docker et Docker Compose
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+      notify: Demarrer Docker
+
+    - name: S'assurer que Docker est demarre
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Creer le dossier docker-lab
+      ansible.builtin.file:
+        path: "{{ docker_lab_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deployer le fichier docker-compose
+      ansible.builtin.template:
+        src: ../templates/docker-compose-lab.yml.j2
+        dest: "{{ docker_lab_dir }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Lancer les conteneurs (nginx + redis)
+      community.docker.docker_compose_v2:
+        project_src: "{{ docker_lab_dir }}"
+        state: present
+      register: compose_result
+
+    - name: Afficher le resultat
+      ansible.builtin.debug:
+        var: compose_result
+
+  handlers:
+    - name: Demarrer Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true

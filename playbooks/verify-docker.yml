@@ -1,0 +1,24 @@
+---
+- name: Verifier le deploiement Docker
+  hosts: nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Verifier Docker installe
+      ansible.builtin.command: docker --version
+      register: docker_version
+      changed_when: false
+
+    - name: Afficher version Docker
+      ansible.builtin.debug:
+        var: docker_version.stdout
+
+    - name: Verifier conteneurs en cours
+      ansible.builtin.command: docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      register: docker_ps
+      changed_when: false
+
+    - name: Afficher conteneurs
+      ansible.builtin.debug:
+        var: docker_ps.stdout_lines

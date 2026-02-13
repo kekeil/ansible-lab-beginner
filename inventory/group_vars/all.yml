@@ -1,0 +1,7 @@
+---
+hello_app_dir: /opt/hello-lab
+hello_script_path: "{{ hello_app_dir }}/hello.sh"
+
+# Docker lab (niveau 2)
+docker_lab_dir: /opt/docker-lab
+docker_nginx_port: 8080
