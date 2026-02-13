@@ -1,0 +1,25 @@
+---
+- name: Verifier le deploiement hello
+  hosts: nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Verifier presence du script
+      ansible.builtin.stat:
+        path: "{{ hello_script_path }}"
+      register: hello_script_stat
+
+    - name: Echouer si script absent
+      ansible.builtin.fail:
+        msg: "Le script {{ hello_script_path }} est absent sur {{ inventory_hostname }}"
+      when: not hello_script_stat.stat.exists
+
+    - name: Executer le script pour verification
+      ansible.builtin.command: "{{ hello_script_path }}"
+      register: verify_output
+      changed_when: false
+
+    - name: Afficher le resultat
+      ansible.builtin.debug:
+        var: verify_output.stdout_lines

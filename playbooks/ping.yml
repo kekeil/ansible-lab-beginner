@@ -1,0 +1,15 @@
+---
+- name: Test de connectivite des noeuds
+  hosts: nodes
+  gather_facts: true
+
+  tasks:
+    - name: Ping Ansible
+      ansible.builtin.ping:
+
+    - name: Afficher les infos de base
+      ansible.builtin.debug:
+        msg:
+          - "inventory_hostname={{ inventory_hostname }}"
+          - "ansible_host={{ ansible_host }}"
+          - "hostname={{ ansible_facts['hostname'] }}"

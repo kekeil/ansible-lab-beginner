@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "========================================="
+echo "Hello depuis Ansible"
+echo "Noeud inventaire : {{ inventory_hostname }}"
+echo "Hostname systeme : $(hostname)"
+echo "Date UTC         : $(date -u +'%Y-%m-%d %H:%M:%S')"
+echo "========================================="

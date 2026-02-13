@@ -1,0 +1,31 @@
+---
+- name: Deployer le script hello sur les noeuds
+  hosts: nodes
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Creer le dossier applicatif
+      ansible.builtin.file:
+        path: "{{ hello_app_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Deployer le script hello
+      ansible.builtin.template:
+        src: ../templates/hello.sh.j2
+        dest: "{{ hello_script_path }}"
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Executer le script hello
+      ansible.builtin.command: "{{ hello_script_path }}"
+      register: hello_output
+      changed_when: false
+
+    - name: Afficher la sortie du script
+      ansible.builtin.debug:
+        var: hello_output.stdout_lines

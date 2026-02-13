@@ -1,0 +1,3 @@
+---
+hello_app_dir: /opt/hello-lab
+hello_script_path: "{{ hello_app_dir }}/hello.sh"
