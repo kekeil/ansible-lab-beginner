@@ -15,7 +15,7 @@
         var: docker_version.stdout
 
     - name: Verifier conteneurs en cours
-      ansible.builtin.command: docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+      ansible.builtin.command: docker ps -a
       register: docker_ps
       changed_when: false
 
